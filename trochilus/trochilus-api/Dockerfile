@@ -1,0 +1,19 @@
+FROM 172.18.31.155/kubernetes/trochilus-base:latest
+
+WORKDIR /trochilus
+
+RUN apt update \
+    && apt install git  python3-libvirt gcc python3-rados python3-dev python3-rbd ipmitool -y \
+    && apt install python3-pip -y \
+    && touch /var/log/trochilus/trochilus-api.log \
+    && cp etc/trochilus/trochilus.conf.sample /etc/trochilus/trochilus.conf \
+    && pip3 install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple \
+    && pip3 install simplejson \
+    && python3 setup.py install \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# COPY trochilus_api_start.sh /usr/local/bin/trochilus_api_start
+
+# RUN chmod 755 /usr/local/bin/trochilus_api_start
+
+CMD ["trochilus-api", "--config-file","/etc/trochilus/trochilus.conf"]
